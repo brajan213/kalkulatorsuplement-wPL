@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator dawek witamin i minerałów dla dzieci</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .results {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+        }
+        .print-header {
+            display: none;
+        }
+        .button-group {
+            margin-top: 15px;
+        }
+        .print-button {
+            background-color: #27ae60;
+        }
+        .print-button:hover {
+            background-color: #219653;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                font-size: 12pt;
+                color: #000;
+            }
+            .form-container, button {
+                display: none;
+            }
+            .results {
+                display: block !important;
+                background-color: transparent;
+                padding: 0;
+            }
+            .print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+            }
+            .print-header h2 {
+                color: #2c3e50;
+                margin: 0;
+            }
+            .print-header p {
+                margin: 5px 0;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+            .note {
+                page-break-before: avoid;
+                font-size: 10pt;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Kalkulator dawek witamin i minerałów dla dzieci</h1>
+    
+    <div class="form-container">
+        <div class="form-group">
+            <label for="age">Wiek dziecka (w latach):</label>
+            <input type="number" id="age" min="0" max="18" step="0.5">
+        </div>
+        
+        <div class="form-group">
+            <label for="birthdate">Data urodzenia dziecka:</label>
+            <input type="date" id="birthdate">
+        </div>
+        
+        <div class="form-group">
+            <label for="weight">Waga dziecka (w kg):</label>
+            <input type="number" id="weight" min="2" max="100" step="0.1">
+        </div>
+        
+        <button onclick="calculateDosages()">Oblicz dawki</button>
+    </div>
+    
+    <div id="results" class="results">
+        <div class="print-header">
+            <h2>Zalecane dawki witamin i minerałów dla dziecka</h2>
+            <div id="printAgeInfo"></div>
+            <p>Data wygenerowania: <span id="currentDate"></span></p>
+        </div>
+        
+        <h2>Dane dziecka</h2>
+        <div id="ageInfo"></div>
+        
+        <div class="section">
+            <h2>Witaminy</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Witamina</th>
+                        <th>Dzienna dawka</th>
+                        <th>Uwagi</th>
+                    </tr>
+                </thead>
+                <tbody id="vitaminTable">
+                    <!-- Tabela zostanie wypełniona przez JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>Makroelementy</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Składnik</th>
+                        <th>Dzienna dawka</th>
+                        <th>Uwagi</th>
+                    </tr>
+                </thead>
+                <tbody id="macroTable">
+                    <!-- Tabela zostanie wypełniona przez JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>Mikroelementy</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Składnik</th>
+                        <th>Dzienna dawka</th>
+                        <th>Uwagi</th>
+                    </tr>
+                </thead>
+                <tbody id="microTable">
+                    <!-- Tabela zostanie wypełniona przez JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>Elektrolity</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Składnik</th>
+                        <th>Dzienna dawka</th>
+                        <th>Uwagi</th>
+                    </tr>
+                </thead>
+                <tbody id="electrolytesTable">
+                    <!-- Tabela zostanie wypełniona przez JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="note">
+            <p><strong>Uwaga:</strong> Podane wartości są orientacyjne i mogą różnić się w zależności od indywidualnych potrzeb dziecka. Przed podaniem jakichkolwiek suplementów należy skonsultować się z lekarzem pediatrą.</p>
+            <p>Dokument wygenerowany przez Kalkulator dawek witamin i minerałów dla dzieci</p>
+        </div>
+        
+        <div class="button-group">
+            <button class="print-button" onclick="window.print()">Drukuj wyniki</button>
+        </div>
+    </div>
+    
+    <script>
+        function calculateDosages() {
+            // Pobieranie wartości z formularza
+            const age = parseFloat(document.getElementById('age').value);
+            const birthdate = document.getElementById('birthdate').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            // Sprawdzanie, czy wszystkie pola zostały wypełnione
+            if (isNaN(age) || !birthdate || isNaN(weight)) {
+                alert("Proszę wypełnić wszystkie pola!");
+                return;
+            }
+            
+            // Obliczanie dawek
+            const vitaminDosages = calculateVitaminDosages(age, weight);
+            const macroDosages = calculateMacroDosages(age, weight);
+            const microDosages = calculateMicroDosages(age, weight);
+            const electrolytesDosages = calculateElectrolytesDosages(age, weight);
+            
+            // Wyświetlanie informacji o wieku
+            const birthDate = new Date(birthdate);
+            const today = new Date();
+            
+            document.getElementById('ageInfo').innerHTML = `
+                <p>Wiek dziecka: ${age} lat</p>
+                <p>Data urodzenia: ${formatDate(birthdate)}</p>
+                <p>Waga: ${weight} kg</p>
+            `;
+            
+            // Formatowanie daty dla wydruku
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('pl-PL', options);
+            
+            document.getElementById('printAgeInfo').innerHTML = `
+                <p>Wiek dziecka: ${age} lat | Data urodzenia: ${formatDate(birthdate)} | Waga: ${weight} kg</p>
+            `;
+            
+            // Wypełnianie tabel wynikami
+            fillTable('vitaminTable', vitaminDosages);
+            fillTable('macroTable', macroDosages);
+            fillTable('microTable', microDosages);
+            fillTable('electrolytesTable', electrolytesDosages);
+            
+            // Pokazanie sekcji wyników
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function fillTable(tableId, data) {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = '';
+            
+            for (const [name, info] of Object.entries(data)) {
+                const row = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = name;
+                
+                const dosageCell = document.createElement('td');
+                dosageCell.textContent = info.dosage;
+                
+                const notesCell = document.createElement('td');
+                notesCell.textContent = info.notes || '-';
+                
+                row.appendChild(nameCell);
+                row.appendChild(dosageCell);
+                row.appendChild(notesCell);
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pl-PL', options);
+        }
+        
+        function calculateVitaminDosages(age, weight) {
+            return {
+                "Witamina A": {
+                    dosage: age < 1 ? "1000-2000 IU" : 
+                           age < 3 ? "1000-2000 IU" : 
+                           age < 8 ? "1300-3000 IU" : "2000-5000 IU",
+                    notes: "Nie przekraczać 5000 IU dziennie bez konsultacji z lekarzem"
+                },
+                "Witamina D": {
+                    dosage: age < 1 ? "400 IU" : 
+                           age < 18 ? "600-1000 IU" : "1000-2000 IU",
+                    notes: "Zalecana suplementacja u dzieci w Polsce"
+                },
+                "Witamina C": {
+                    dosage: age < 1 ? "35-40 mg" : 
+                           age < 3 ? "40-50 mg" : 
+                           age < 8 ? "50-60 mg" : "60-90 mg",
+                    notes: "Dawka może być zwiększona w okresie infekcji"
+                },
+                "Witamina E": {
+                    dosage: age < 1 ? "4-5 mg" : 
+                           age < 3 ? "6 mg" : 
+                           age < 8 ? "7 mg" : "11 mg",
+                    notes: "Naturalna postać (d-alfa-tokoferol) jest lepiej przyswajalna"
+                },
+                "Witamina K": {
+                    dosage: age < 1 ? "2-2.5 mcg" : 
+                           age < 3 ? "30 mcg" : 
+                           age < 8 ? "55 mcg" : "60-75 mcg",
+                    notes: "Noworodki otrzymują jednorazową dawkę po urodzeniu"
+                },
+                "Witamina B1 (Tiamina)": {
+                    dosage: age < 1 ? "0.3-0.4 mg" : 
+                           age < 3 ? "0.5-0.7 mg" : 
+                           age < 8 ? "0.8-1 mg" : "1.1-1.2 mg"
+                },
+                "Witamina B2 (Ryboflawina)": {
+                    dosage: age < 1 ? "0.4-0.5 mg" : 
+                           age < 3 ? "0.8-1 mg" : 
+                           age < 8 ? "1.1-1.3 mg" : "1.3-1.5 mg"
+                },
+                "Witamina B3 (Niacyna)": {
+                    dosage: age < 1 ? "4-6 mg" : 
+                           age < 3 ? "8-9 mg" : 
+                           age < 8 ? "11-12 mg" : "14-16 mg"
+                },
+                "Witamina B6": {
+                    dosage: age < 1 ? "0.3-0.6 mg" : 
+                           age < 3 ? "0.9-1 mg" : 
+                           age < 8 ? "1.2-1.3 mg" : "1.3-1.7 mg"
+                },
+                "Kwas foliowy": {
+                    dosage: age < 1 ? "65-80 mcg" : 
+                           age < 3 ? "150 mcg" : 
+                           age < 8 ? "200 mcg" : "300-400 mcg",
+                    notes: "Szczególnie ważne dla kobiet w ciąży"
+                },
+                "Witamina B12": {
+                    dosage: age < 1 ? "0.4-0.5 mcg" : 
+                           age < 3 ? "0.9 mcg" : 
+                           age < 8 ? "1.2 mcg" : "1.8-2.4 mcg",
+                    notes: "Wegetarianie mogą potrzebować suplementacji"
+                }
+            };
+        }
+        
+        function calculateMacroDosages(age, weight) {
+            return {
+                "Wapń": {
+                    dosage: age < 1 ? "200-260 mg" : 
+                           age < 3 ? "700 mg" : 
+                           age < 8 ? "1000 mg" : "1300 mg",
+                    notes: "Kluczowy dla rozwoju kości i zębów"
+                },
+                "Fosfor": {
+                    dosage: age < 1 ? "100-275 mg" : 
+                           age < 3 ? "460 mg" : 
+                           age < 8 ? "500 mg" : "1250 mg",
+                    notes: "Ważny dla zdrowia kości i produkcji energii"
+                },
+                "Magnez": {
+                    dosage: age < 1 ? "30-75 mg" : 
+                           age < 3 ? "80 mg" : 
+                           age < 8 ? "130 mg" : "240-410 mg",
+                    notes: "Wspomaga funkcje nerwowe i mięśniowe"
+                },
+                "Siarka": {
+                    dosage: age < 1 ? "nie ustalono" : 
+                           age < 18 ? "nie ustalono" : "nie ustalono",
+                    notes: "Wystarczająca ilość w diecie białkowej"
+                }
+            };
+        }
+        
+        function calculateMicroDosages(age, weight) {
+            return {
+                "Żelazo": {
+                    dosage: age < 1 ? "11 mg" : 
+                           age < 3 ? "7 mg" : 
+                           age < 8 ? "10 mg" : "8-15 mg",
+                    notes: "Dziewczęta w wieku dojrzewania potrzebują więcej"
+                },
+                "Cynk": {
+                    dosage: age < 1 ? "2-3 mg" : 
+                           age < 3 ? "3 mg" : 
+                           age < 8 ? "5 mg" : "8-11 mg",
+                    notes: "Ważny dla odporności i gojenia ran"
+                },
+                "Miedź": {
+                    dosage: age < 1 ? "200-220 mcg" : 
+                           age < 3 ? "340 mcg" : 
+                           age < 8 ? "440 mcg" : "700-890 mcg",
+                    notes: "Uczestniczy w produkcji czerwonych krwinek"
+                },
+                "Mangan": {
+                    dosage: age < 1 ? "0.003-0.6 mg" : 
+                           age < 3 ? "1.2 mg" : 
+                           age < 8 ? "1.5 mg" : "1.6-2.2 mg",
+                    notes: "Wspomaga metabolizm"
+                },
+                "Jod": {
+                    dosage: age < 1 ? "110-130 mcg" : 
+                           age < 3 ? "90 mcg" : 
+                           age < 8 ? "90 mcg" : "120-150 mcg",
+                    notes: "Niezbędny dla prawidłowej funkcji tarczycy"
+                },
+                "Selen": {
+                    dosage: age < 1 ? "15-20 mcg" : 
+                           age < 3 ? "20 mcg" : 
+                           age < 8 ? "30 mcg" : "40-55 mcg",
+                    notes: "Przeciwutleniacz, ważny dla odporności"
+                },
+                "Fluor": {
+                    dosage: age < 1 ? "0.01-0.5 mg" : 
+                           age < 3 ? "0.7 mg" : 
+                           age < 8 ? "1 mg" : "2-3 mg",
+                    notes: "Zapobiega próchnicy, ale w nadmiarze szkodliwy"
+                }
+            };
+        }
+        
+        function calculateElectrolytesDosages(age, weight) {
+            return {
+                "Sód": {
+                    dosage: age < 1 ? "120-370 mg" : 
+                           age < 3 ? "1000 mg" : 
+                           age < 8 ? "1200 mg" : "1500 mg",
+                    notes: "Nadmiar może prowadzić do nadciśnienia"
+                },
+                "Potas": {
+                    dosage: age < 1 ? "400-700 mg" : 
+                           age < 3 ? "3000 mg" : 
+                           age < 8 ? "3800 mg" : "4500-4700 mg",
+                    notes: "Reguluje równowagę wodno-elektrolitową"
+                },
+                "Chlor": {
+                    dosage: age < 1 ? "180-570 mg" : 
+                           age < 3 ? "1500 mg" : 
+                           age < 8 ? "1900 mg" : "2300 mg",
+                    notes: "Występuje razem z sodem w soli kuchennej"
+                }
+            };
+        }
+    </script>
+</body>
+</html>
